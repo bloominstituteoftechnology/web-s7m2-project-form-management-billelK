@@ -20,81 +20,99 @@ I enjoy bringing creativity and aesthetics to the digital world."
 ]
 
 export default function App() {
+  const [formValues, setFormValues] = useState({fname: "", lname: "", bio: ""})
   const [members, setMembers] = useState(teamMembers)
   const [editing, setEditing] = useState(null)
-  // ✨ Create a third state to track the values of the inputs
 
-  useEffect(() => {
-    // ✨ If the `editing` state changes from null to the number 2 (for example)
-    // this means we need to populate the inputs of the form
-    // with the data belonging to the member with id 2.
-    // On the other hand, if the `editing` state changes back to null
-    // then we need to reset the form back to empty values
-  }, [editing])
+  const submit = (e) => {
+    e.preventDefault()
+    if (editing === null) {
+      setMembers([...members,{id: getId(), fname: formValues.fname, lname: formValues.lname, bio: formValues.bio}])
+      setFormValues({...formValues, fname: "", lname: "", bio: ""})
+    } else {
+      members.map(member => {
+       if(member.id === editing) {
+        member.fname = formValues.fname
+        member.lname = formValues.lname
+        member.bio = formValues.bio
+        setFormValues({...formValues, fname: "", lname: "", bio: ""})
+        setEditing(null)
+       }
+      })
+    }
+  }
 
-  const onChange = evt => {
-    // ✨ This is the change handler for your text inputs and your textarea.
-    // You can check `evt.target.id` to know which input changed
-    // and then you can use `evt.target.value` to update the state of the form
+  const change = (e) => {
+    let {value, name} = e.target
+    setFormValues({...formValues, [name]: value})
   }
-  const edit = id => {
-    // ✨ Put this function inside a click handler for the <button>Edit</button>.
-    // It should change the value of `editing` state to be the id of the member
-    // whose Edit button was clicked
-  }
-  const submitNewMember = () => {
-    // This takes the values of the form and constructs a new member object,
-    // which is then concatenated at the end of the `members` state
-  }
-  const editExistingMember = () => {
-    // ✨ This takes the values of the form and replaces the data of the
-    // member in the `members` state whose id matches the `editing` state
-  }
-  const onSubmit = evt => {
-    // ✨ This is the submit handler for your form element.
-    // It will call either `submitNewMember` or `editExistingMember`
-    // depending on whether the `editing` state is null or has an id in it.
-    // Don't allow the page to reload! Prevent the default behavior
-    // and clean up the form after submitting
+
+  const edit = (id) => {
+    setEditing(id)
+    let member = members.find(member => member.id === id)
+    let {fname, lname, bio} = member
+    setFormValues({fname: fname, lname: lname, bio: bio})
   }
   return (
-    <div>{/* ✨ Fix the JSX by wiring the necessary values and event handlers */}
+    <div>
       <div id="membersList">
         <h2>Team Members</h2>
         <div>
-          {
-            members.map(mem => (
-              <div key={mem.id} className="member">
-                <div>
-                  <h4>{mem.fname} {mem.lname}</h4>
-                  <p>{mem.bio}</p>
-                </div>
-                <button>Edit</button>
-              </div>
-            ))
-          }
+          {members.map(member => 
+          <div className='member' key={member.id}>
+            <div>
+              <h4>
+                {member.fname} {member.lname}
+              </h4>
+              <p>{member.bio}</p>
+            </div>
+            <button onClick={() => edit(member.id)}>Edit</button>
+          </div>)}
         </div>
       </div>
-      <div id="membersForm">
-        <h2>{editing ? 'Edit' : 'Add'} a Team Member</h2>
-        <form>
+      <div id='membersForm'>
+        <h2>Add a Team Member </h2>
+        <form onSubmit={submit}>
           <div>
-            <label htmlFor="fname">First Name </label>
-            <input id="fname" type="text" placeholder="Type First Name" />
+            <label htmlFor='fname'>First Name </label>
+            <input
+              required
+              onChange={change}
+              value={formValues.fname}
+              name='fname'
+              id='fnameInput'
+              type='text'
+              placeholder='Type First Name'
+            >
+            </input>
           </div>
-
           <div>
-            <label htmlFor="lname">Last Name </label>
-            <input id="lname" type="text" placeholder="Type Last Name" />
+            <label htmlFor='lname'>Lirst Name </label>
+            <input
+              required
+              onChange={change}
+              value={formValues.lname}
+              name='lname'
+              id='lnameInput'
+              type='text'
+              placeholder='Type Last Name'
+            >
+            </input>
           </div>
-
           <div>
-            <label htmlFor="bio">Bio </label>
-            <textarea id="bio" placeholder="Type Bio" />
+            <label htmlFor='bio'>Bio </label>
+            <textarea
+              onChange={change}
+              value={formValues.bio}
+              name='bio'
+              id='bioInput'
+              type='text'
+              placeholder='Type Bio'
+            >
+            </textarea>
           </div>
-
           <div>
-            <input type="submit" />
+            <input type='submit'></input>
           </div>
         </form>
       </div>
